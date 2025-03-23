@@ -1,6 +1,6 @@
 # Prácticas de Física Térmica 24-25
 
-Este repositorio contiene los informes de las prácticas realizadas en la asignatura de Física Térmica del grado en Física de la Universidad de Murcia durante el curso 2024-2025.
+Este repositorio contiene los informes de las prácticas realizadas en la asignatura _Física Térmica_ del grado en Física de la Universidad de Murcia durante el curso 2024-2025.
 
 ## Autores
 
