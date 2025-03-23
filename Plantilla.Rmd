@@ -1,0 +1,119 @@
+---
+title: "Práctica n: Titulo"
+author: "Jesús González Abril, Juan Antonio Molina Blázquez, Manuel Pividal Otero"
+date: "dd/mm/2025"
+output: 
+  pdf_document: 
+    number_sections: true
+    fig_caption: true
+header-includes:
+- \usepackage{titling}
+- \usepackage{float}
+- \usepackage{subcaption}
+- \floatplacement{table}{H}
+- \usepackage[spanish,es-tabla,es-nodecimaldot]{babel}
+- \usepackage{lipsum}
+- \pretitle{\begin{center}\huge \bfseries Física Térmica \vspace{0.5cm} \\ \Large}
+- \posttitle{\end{center}}
+- \preauthor{\begin{center} \Large}
+- \postauthor{\vspace{0.5cm} \\ Profesor Giuseppe Raguní \end{center}}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+# Objetivo
+
+\lipsum[1]
+
+# Introducción
+
+\lipsum[1]
+
+\begin{align}
+E=mc^2+H
+\end{align}
+
+De la escuela sabemos que $\frac{dy}{dx}=\frac{y}{x}$ por definición.
+
+\clearpage
+
+# Dispositivo experimental y metodología
+
+## Instrumentación
+
+## Montaje experimental
+
+![Montaje experimental](logo.png){width="200"}
+ 
+## Método de medida
+ 
+# Medidas
+
+Ejemplo de tabla:
+
+```{r}
+x <- c(1,2,3,4)
+y <- c(7,8,9,10.3)
+
+# Tabla
+data <- data.frame(x,y)
+colnames(data) <- c("$\\theta / ^{\\circ}$","$I / \\mu W$")
+  
+knitr::kable(
+  data,
+  caption="Titulo de la tabla",
+  booktabs = TRUE,
+  escape = FALSE,
+  row.names = FALSE
+)
+```
+
+Falta ver cómo ponemos los errores instrumentales
+
+# Análisis
+
+Ajuste lineal:
+```{r, echo=FALSE,  out.width= "60%", fig.align='center', fig.cap="Ajuste lineal"}
+
+# Ajuste lineal
+modelo_lineal <- lm(y ~ x)
+resumen <- summary(modelo_lineal)
+pendiente <- modelo_lineal$coefficients[[2]]
+inc_pendiente <- resumen$coefficients[2,2]
+ordenada <- modelo_lineal$coefficients[[1]]
+
+# Graficamos los datos y la línea de ajuste
+
+titulo <- "Ajuste lineal"
+plot(x, y, main = titulo, ylab ="10i / m", xlab = "D / m")
+abline(modelo_lineal, col = "coral")
+```
+
+Pendiente: $`r pendiente`\ unidades$
+
+Incertidumbre pendiente: $`r inc_pendiente` \ unidades$
+
+Ordenada: $`r ordenada`\ unidades$
+
+¡Cuidado con las cifras significativas!
+
+# Resultados
+
+Valor obtenido:
+
+\[
+\alpha = 420.69 \pm 0.69\ cuevas
+\]
+
+Valor tabulado
+\[
+\alpha_{\text{tabla}} \approx 420.69\ cuevas
+\]
+
+
+
+# Discusión y conclusiones
+
+\lipsum[1]

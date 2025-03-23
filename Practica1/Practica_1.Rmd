@@ -1,0 +1,222 @@
+---
+title: "Práctica 1: Presión de vapor de agua frente a temperatura a altas presiones"
+author: "Jesús González Abril, Juan Antonio Molina Blázquez, Manuel Pividal Otero"
+date: "18/02/2025"
+output: 
+  pdf_document: 
+    number_sections: true
+    fig_caption: true
+header-includes:
+- \usepackage{titling}
+- \usepackage{float}
+- \usepackage{subcaption}
+- \floatplacement{table}{H}
+#- \usepackage[spanish,es-tabla,es-nodecimaldot]{babel}
+- \usepackage{lipsum}
+- \pretitle{\begin{center}\huge \bfseries Física Térmica \vspace{0.5cm} \\ \Large}
+- \posttitle{\end{center}}
+- \preauthor{\begin{center} \Large}
+- \postauthor{\vspace{0.5cm} \\ Profesor Giuseppe Raguní \end{center}}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+# Objetivo
+
+- Determinar el calor latente de vaporización a $100^{\circ} C$ del agua.
+
+# Introducción
+
+Usaremos la ecuación de Clapeyron para cambios de fase de primer orden:
+\begin{align}
+\frac{dp}{dT}=\frac{L}{T\Delta\mho}
+\end{align}
+Tenemos que $\Delta\mho=\mho_v-\mho_l$, donde $\mho_v$ es el volumen molar del vapor de agua y $\mho_l$ el del agua líquida. Podemos considerar $\mho_v \gg \mho_l$ y por tanto $\Delta\mho\approx\mho_v$, por lo que la expresión queda
+\begin{align}
+\frac{dp}{dT}=\frac{L}{T\mho_v}
+\end{align}
+Si consideramos el vapor de agua como un gas ideal tendremos que
+\begin{align}
+\mho_v=\frac{RT}{p}
+\end{align}
+Y sustituyendo en la ecuación (2):
+\begin{align}
+\frac{dp}{dT}=\frac{Lp}{RT^2}
+\end{align}
+Una ecuación de variables separables cuya solución es:
+\begin{align}
+\log p=-\frac{L}{RT}+K
+\end{align}
+
+\clearpage
+
+# Dispositivo experimental y metodología
+
+## Instrumentación
+
+- Cámara cilíndrica de paredes gruesas con manómetro.
+- Multímetro con sonda térmica.
+- Manta calefactora.
+- Cuña de madera para dar más estabilidad al montaje.
+
+## Montaje experimental
+
+\begin{figure}[H]
+  \begin{subfigure}{.45\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{figuras/montaje.jpg}
+    \caption{Camará cilíndrica y manómetro.}
+  \end{subfigure}%
+  \hfill 
+  \begin{subfigure}{.45\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{figuras/multimetro.jpg}
+    \caption{Multímetro.}
+  \end{subfigure}%
+  \caption{Montaje experimental}
+\end{figure}
+
+## Método de medida 
+
+\begin{enumerate}
+    \item Una vez el cilindro esté lleno de agua y situado sobre la manta calefactora, conectamos esta y dejamos que se caliente hasta los $100^\circ C$.
+    \item A partir de ese momento empezamos a tomar medidas tanto de la presión medida por el manómetro como de la temperatura medida por el multímetro.
+    \item Cuando la presión llegue a $22\  \text{bar}$ desconectamos la manta calefactora y según se va enfriando hasta volver a $1\ \text{bar}$ seguimos tomando medidas.
+\end{enumerate}
+
+\clearpage
+
+# Medidas
+
+Las medidas de presión y temperatura registradas fueron las siguientes
+```{r}
+p_bares <- 1:22
+p <- 1:22 * 10^5
+T_1 <- c(110,129,140,152,159,165,171,176,182,185,190,194,198,201,204,208,211,214,216,218,221,224)
+T_2 <- c(104,127,140,151,159,166,172,178,183,187,191,195,199,202,206,209,211,213,217,219,221,224)
+err_T = 1
+err_p = 1 * 10^5
+Tmedia = (T_1+T_2)/2 + 273.15
+
+# Tabla
+data <- data.frame(p_bares,T_1,T_2)
+colnames(data) <- c("$p$ / bar","$T_{\\text{subida}}$ / $^\\circ C$", "$T_{\\text{bajada}}$ / $^\\circ C$")
+  
+knitr::kable(
+  data,
+  caption="Medidas de presión y temperatura al calentar el cilindro (T subida) y dejar que se enfríe (T bajada)",
+  booktabs = TRUE,
+  escape = FALSE,
+  row.names = FALSE,
+  align="c"
+)
+```
+
+\clearpage
+
+Si tomamos como temperatura el promedio de ambas temperaturas $T=\frac{T_{\text{subida}}+T_{\text{bajada}}}{2}$ y expresamos los datos en unidades del SI obtenemos la siguiente tabla, a partir de la cual realizaremos el ajuste por mínimos cuadrados.
+
+```{r}
+# Tabla
+data <- data.frame(p, Tmedia)
+colnames(data) <- c("$p$ / Pa","$T$ / K")
+  
+knitr::kable(
+  data,
+  caption="Medidas de presión y temperatura",
+  booktabs = TRUE,
+  escape = FALSE,
+  row.names = FALSE,
+  align="c"
+)
+```
+
+\clearpage
+
+# Análisis
+
+```{r}
+# Ajuste lineal
+logp <- log(p)
+T_inversa <- 1/Tmedia
+
+modelo_lineal <- lm(logp ~ T_inversa)
+resumen <- summary(modelo_lineal)
+pendiente <- modelo_lineal$coefficients[[2]]
+inc_pendiente <- resumen$coefficients[2,2]
+ordenada <- modelo_lineal$coefficients[[1]]
+inc_ordenada <- resumen$coefficients[1,2]
+```
+A partir de las medidas experimentales hacemos un ajuste de acuerdo a la ecuación (5), obtiendo lo siguiente:
+
+- Pendiente: $m=-\frac{L}{R} = `r pendiente`\ K$
+
+- Incertidumbre pendiente: $\Delta m =`r inc_pendiente` \ K$
+
+- Ordenada: $K = `r ordenada`$
+
+- Incertidumbre ordenada: $\Delta K =`r inc_ordenada`$
+
+
+```{r, echo=FALSE, fig.align='center', fig.cap="Ajuste lineal de $\\log p$ frente a $\\frac{1}{T}$"}
+
+# Graficamos los datos y la línea de ajuste
+
+titulo <- expression(log(p) ~ "frente a" ~ frac(1, T))
+plot(1/Tmedia, log(p), main = titulo, ylab ="log(p)", xlab = expression(frac(1,T) ~ " / " ~ K^{-1}))
+abline(modelo_lineal, col = "coral")
+```
+
+
+```{r}
+R <- 8.3145
+
+L <- -pendiente*R / 1000
+inc_L <- inc_pendiente*R / 1000
+
+```
+
+\clearpage
+
+# Resultados
+
+Si ahora suponemos $R$ conocido con un valor $R=`r R`\ \frac{J}{K \text{mol}}$ y sin error, podemos obtener $L$ a partir de la pendiente de la recta. También podemos calcular su incertidumbre $\Delta L$ a partir de $\Delta m$.
+\[
+L = -mR = `r L`\ \frac{kJ}{\text{mol}}
+\]
+
+\[
+\Delta L = \Delta mR = `r inc_L`\ \frac{kJ}{\text{mol}}
+\]
+
+Expresándolo correctamente:
+\[
+L = `r round(L,2)` \pm `r signif(inc_L,2)` \ \frac{kJ}{\text{mol}}
+\]
+Por otro lado, el valor tabulado de la entalpía de vaporización del agua es
+\[
+L_{teórico} = 40.656 \ \frac{kJ}{\text{mol}}
+\]
+según Wikipedia.
+
+# Discusión y conclusiones
+
+```{r}
+epsilon <- abs((40.656-L)/40.656)
+```
+
+En primer lugar, aunque el valor teórico esperado no entre dentro del rango del valor obtenido experimentalmente, podemos dar por satisfactorio el experimento, puesto que el error relativo respecto al valor esperado es
+\[
+\epsilon = |\frac{L_{teórico}-L}{L_{teórico}}|\approx `r signif(epsilon,2)`
+\]
+es decir, en torno al 2%.
+
+En cuanto al experimento, el montaje es realmente sencillo y las aproximaciones teóricas realizadas entran dentro de lo razonable, por lo que las fuentes de error principales vienen de la limitación del instrumental empleado. En concreto, el multímetro empleado solo era capaz de registrar variaciones de $1^\circ C$, y en ocasiones observábamos que la temperatura aumentaba unos instantes después de alcanzar una presión de interés en bares. Por otro lado, el manómetro solo registraba cambios de $1\ \text{bar}$, por lo que esta era, sin duda, la mayor limitación en cuanto a sensibilidad.
+
+También es importante señalar las diferencias que se pueden observar entre las temperaturas de subida y bajada. Para intentar disminuir el error introducido por este hecho se han promediado ambas medidas de temperatura, pero sin duda constituye otra limitación importante en cuanto a la calidad de los resultados obtenidos.
+
+
+
+
